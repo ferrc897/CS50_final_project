@@ -1,7 +1,10 @@
 import pygame
+from blockblast import Blockblast as BB
 
 pygame.init()
-size = width, height = 1000, 600
+size = width, height = 1000, 800
+
+game = BB(9, 9)
 
 screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
@@ -14,7 +17,7 @@ red = (255, 0, 0)
 grey = (100, 100, 100)
 
 title_text = pygame.font.Font(None, 100)
-button_text = pygame.font.Font('arial.ttf', 20)
+button_text = pygame.font.Font('assets/fonts/arial.ttf', 20)
 
 playing = False
 while running:
@@ -61,9 +64,43 @@ while running:
                 playing = True
             elif button2.collidepoint(mouse):
                 running = False
+        
+        pygame.display.flip()
 
     else:
-        pass
+
+        screen.fill(blue)
+        mouse = pygame.mouse.get_pos()
+        menuButton = pygame.Rect(40, 40, 100, 60)
+        if menuButton.collidepoint(mouse):
+            pygame.draw.rect(screen, grey, menuButton)
+        else:
+            pygame.draw.rect(screen, white, menuButton)
+        
+        menu = button_text.render('Menu', True, black)
+        menuRect = menu.get_rect()
+        menuRect.center = (90, 70)
+        screen.blit(menu, menuRect)
+
+        click, _, _ = pygame.mouse.get_pressed()
+        if click == 1:
+            if menuButton.collidepoint(mouse):
+                playing = False
+
+        board = pygame.Rect(width/2 - 200, height/2 - 250, 542, 542)
+        pygame.draw.rect(screen, (11, 44, 149), board, border_radius=5)
+
+        rows = []
+        for i in range(game.height):
+            columns = []
+            for j in range(game.width):
+                cell = pygame.Rect(width/2 - 198 + i * 60, height/2 - 248 + j * 60, 58, 58)
+                if not game.board[i][j]:
+                    pygame.draw.rect(screen, (28, 157, 195), cell)
+                else:
+                    pygame.draw.rect(screen, red, cell)
 
 
-    pygame.display.flip()
+
+        
+        pygame.display.flip()
