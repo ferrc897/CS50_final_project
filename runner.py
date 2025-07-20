@@ -1,5 +1,5 @@
 import pygame
-from blockblast import Blockblast as BB
+from blockblast import Blockblast as BB, Piece
 
 pygame.init()
 size = width, height = 1000, 800
@@ -19,11 +19,29 @@ grey = (100, 100, 100)
 title_text = pygame.font.Font(None, 100)
 button_text = pygame.font.Font('assets/fonts/arial.ttf', 20)
 
+pieces = []
+moving_piece = None
 playing = False
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                for piece in pieces:
+                    if piece.is_clicked(event.pos):
+                        piece.dragging = True
+                        moving_piece = piece
+
+
+        elif event.type == pygame.MOUSEBUTTONUP:
+            if event.button == 1 and moving_piece:
+                moving_piece.dragging = False
+                moving_piece = None
+
+        elif event.type == pygame.MOUSEMOTION and moving_piece:
+            moving_piece.update_position(event.pos)
 
     screen.fill(blue)
 
@@ -100,7 +118,12 @@ while running:
                 else:
                     pygame.draw.rect(screen, red, cell)
 
-
-
+        for piece in pieces:
+            piece.draw()
         
+        if len(pieces) == 0:
+            pieces.append(Piece(screen, 40, 130))
+            pieces.append(Piece(screen, 40, 320))
+            pieces.append(Piece(screen, 40, 500))
+
         pygame.display.flip()
