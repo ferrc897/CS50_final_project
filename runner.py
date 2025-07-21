@@ -27,10 +27,13 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
+        if not game.board:
+            game.create_board(screen, width, height)
+
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 for piece in pieces:
-                    if piece.is_clicked(event.pos):
+                    if piece.is_clicked(event.pos) and piece.is_movable:
                         piece.dragging = True
                         moving_piece = piece
 
@@ -38,6 +41,8 @@ while running:
         elif event.type == pygame.MOUSEBUTTONUP:
             if event.button == 1 and moving_piece:
                 moving_piece.dragging = False
+                moving_piece.x = moving_piece.initial_x
+                moving_piece.y = moving_piece.initial_y
                 moving_piece = None
 
         elif event.type == pygame.MOUSEMOTION and moving_piece:
@@ -108,15 +113,8 @@ while running:
         board = pygame.Rect(width/2 - 200, height/2 - 250, 542, 542)
         pygame.draw.rect(screen, (11, 44, 149), board, border_radius=5)
 
-        rows = []
-        for i in range(game.height):
-            columns = []
-            for j in range(game.width):
-                cell = pygame.Rect(width/2 - 198 + i * 60, height/2 - 248 + j * 60, 58, 58)
-                if not game.board[i][j]:
-                    pygame.draw.rect(screen, (28, 157, 195), cell)
-                else:
-                    pygame.draw.rect(screen, red, cell)
+        game.draw_board()
+                
 
         for piece in pieces:
             piece.draw()
@@ -124,6 +122,6 @@ while running:
         if len(pieces) == 0:
             pieces.append(Piece(screen, 40, 130))
             pieces.append(Piece(screen, 40, 320))
-            pieces.append(Piece(screen, 40, 500))
+            pieces.append(Piece(screen, 40, 510))
 
         pygame.display.flip()
