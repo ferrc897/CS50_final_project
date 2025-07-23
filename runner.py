@@ -4,7 +4,7 @@ from blockblast import Blockblast as BB, Piece
 pygame.init()
 size = width, height = 1000, 800
 
-game = BB(9, 9)
+game = BB(9, 9, width, height)
 
 screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
@@ -27,9 +27,6 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-        if not game.board:
-            game.create_board(screen, width, height)
-
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 for piece in pieces:
@@ -37,17 +34,18 @@ while running:
                         piece.dragging = True
                         moving_piece = piece
 
-
         elif event.type == pygame.MOUSEBUTTONUP:
             if event.button == 1 and moving_piece:
+                moving_piece.place_piece(game.board, pieces)
+                pieces.remove(moving_piece)
                 moving_piece.dragging = False
-                moving_piece.x = moving_piece.initial_x
-                moving_piece.y = moving_piece.initial_y
                 moving_piece = None
 
         elif event.type == pygame.MOUSEMOTION and moving_piece:
             moving_piece.update_position(event.pos)
 
+    if not game.board:
+        game.create_board(screen)
     screen.fill(blue)
 
     mouse = pygame.mouse.get_pos()
@@ -112,8 +110,8 @@ while running:
 
         board = pygame.Rect(width/2 - 200, height/2 - 250, 542, 542)
         pygame.draw.rect(screen, (11, 44, 149), board, border_radius=5)
-
-        game.draw_board()
+                        
+        game.draw_board(pieces)
                 
 
         for piece in pieces:
