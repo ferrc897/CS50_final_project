@@ -15,30 +15,58 @@ class Blockblast:
         self.board = []
         self.screen_width = screen_width
         self.screen_height = screen_height
+        self.score = 0
+
 
     def create_board(self, screen):
         for i in range(self.height):
             row = []
             for j in range(self.width):
-                position = pygame.Rect(self.screen_width/2 - 178 + i * 60, self.screen_height/2 - 228 + j * 60, 4, 4)
+                position = pygame.Rect(self.screen_width/2 - 175 + j * 60, self.screen_height/2 - 225 + i * 60, 5, 5)
                 row.append(Cell(screen, position, (i, j)))
             self.board.append(row)
 
     
-    def draw_board(self, pieces):
+    def draw_board(self,screen, pieces):
+        
         for i in range(len(self.board)):
             for j in range(len(self.board[i])):
-                cellRect = pygame.Rect(self.screen_width/2 - 198 + i * 60, self.screen_height/2 - 248 + j * 60, 58, 58)
-                screen = self.board[i][j].screen
+                cellRect = pygame.Rect(self.screen_width/2 - 198 + j * 60, self.screen_height/2 - 248 + i * 60, 58, 58)
     
                 if self.board[i][j].is_colliding(pieces):
                     pygame.draw.rect(screen, (233, 226, 13), cellRect)
                 elif self.board[i][j].block == 1:
-                    pygame.draw.rect(screen, (255, 0, 0), (self.screen_width/2 - 198 + i * 60, self.screen_height/2 - 248 + j * 60, 60, 60))
+                    pygame.draw.rect(screen, (255, 0, 0), (self.screen_width/2 - 198 + j * 60, self.screen_height/2 - 248 + i * 60, 60, 60))
                 else:
                     pygame.draw.rect(screen, (28, 157, 195), cellRect)
 
 
+    def update_score(self, piece):
+
+        board_t = self.board.copy()
+        for i, row in enumerate(self.board):
+            blocks = 0
+            for j, cell in enumerate(row):
+                if cell.block == 1:
+                    blocks += 1
+            if blocks == len(row):
+                self.score += len(row)
+                for j, cell in enumerate(row):
+                    cell.block = 0
+
+        for i, row in enumerate(board_t):
+            blocks = 0
+            for j, cell in enumerate(row):
+                if board_t[j][i].block == 1:
+                    blocks += 1
+            if blocks == 9:
+                self.score += len(row)
+                for j, cell in enumerate(row):
+                    self.board[j][i].block = 0
+
+            
+                
+                
 
 
 class Cell:
@@ -52,7 +80,7 @@ class Cell:
     def is_colliding(self, pieces):
         for i, piece in enumerate(pieces):
             for j, block in enumerate(piece.get_rects()):
-                if self.position.colliderect(block):
+                if self.position.colliderect(block) and self.block == 0:
                     piece.cells_colliding.append(self.coord)
                     return True
                 
@@ -71,6 +99,12 @@ class Piece:
         self.offset_y = 0
         self.is_movable = True
         self.cells_colliding = []
+        self.blocks = 0
+
+        for i, row in enumerate(self.shape):
+            for j, block in enumerate(row):
+                if block == 1:
+                    self.blocks += 1
 
 
     def draw(self):
@@ -108,10 +142,22 @@ class Piece:
             self.y = self.offset_y + pos[1]
 
 
-    def place_piece(self, board, pieces):
+    def place(self, board):
         for i, row in enumerate(board):
             for j, cell in enumerate(row):
-                if cell.is_colliding(pieces):
+                if cell.is_colliding([self]):
                     cell.block = 1
+
+    
+    def is_placeable(self, board):
+        cells = 0
+        for i, row in enumerate(board):
+            for j, cell in enumerate(row):
+                if cell.is_colliding([self]) and cell.block == 0:
+                    cells +=1
+
+        if self.blocks == cells:
+            return True
+        return False
 
 

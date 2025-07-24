@@ -36,8 +36,15 @@ while running:
 
         elif event.type == pygame.MOUSEBUTTONUP:
             if event.button == 1 and moving_piece:
-                moving_piece.place_piece(game.board, pieces)
-                pieces.remove(moving_piece)
+                if moving_piece.is_placeable(game.board):
+                    moving_piece.place(game.board)
+                    pieces.remove(moving_piece)
+                else:
+                    moving_piece.x = moving_piece.initial_x
+                    moving_piece.y = moving_piece.initial_y
+
+                game.update_score(moving_piece)
+
                 moving_piece.dragging = False
                 moving_piece = None
 
@@ -110,9 +117,18 @@ while running:
 
         board = pygame.Rect(width/2 - 200, height/2 - 250, 542, 542)
         pygame.draw.rect(screen, (11, 44, 149), board, border_radius=5)
+
+        scoreText = button_text.render('Score:', True, white)
+        scoreTextRect = scoreText.get_rect()
+        scoreTextRect.center = (width/2 - 200, 70)
+        screen.blit(scoreText, scoreTextRect)
+
+        score = button_text.render(str(game.score), True, white)
+        scoreRect = score.get_rect()
+        scoreRect.center = (width/2 - 150, 70)
+        screen.blit(score, scoreRect)
                         
-        game.draw_board(pieces)
-                
+        game.draw_board(screen, pieces)
 
         for piece in pieces:
             piece.draw()
