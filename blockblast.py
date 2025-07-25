@@ -3,11 +3,49 @@ import pygame
 
 
 shapes = [
-    [[1, 1, 0], [1, 1, 0]],
+
+    #Cubes
+    [[1, 1, 1], [1, 1, 1], [1, 1, 1]],
+    [[1, 1], [1, 1]],
+
+    #L shaped figures
     [[1, 0, 0], [1, 1, 1]],
+    [[0, 0, 1], [1, 1, 1]],
+    [[1, 1, 1], [1, 0, 0]],
+    [[1, 1, 1], [0, 0, 1]],
+
+    [[1, 1], [1, 0], [1, 0]],
+    [[1, 1], [0, 1], [0, 1]],
+    [[0, 1], [0, 1], [1, 1]],
+    [[1, 0], [1, 0], [1, 1]],
+
+    #Triangles
     [[0, 1, 0], [1, 1, 1]],
-    [[1, 1, 1], [1, 1, 1], [1, 1, 1]]
+    [[1, 0], [1, 1], [1, 0]],
+    [[0, 1], [1, 1], [0, 1]],
+    [[1, 1, 1], [0, 1, 0]],
+
+    #Bars
+    [[1, 1, 1, 1]],
+    [[1], [1], [1], [1]],
+
+    # S shape figures
+    [[0, 1, 1], 
+    [1, 1, 0]],
+    [[1, 1, 0], [0, 1, 1]],
+    [[0, 1], [1, 1], [1, 0]],
+    [[1, 0], [1, 1], [0, 1]]
+
 ]
+
+colors = [
+    (232, 12, 12),
+    (233, 237, 24),
+    (24, 127, 237),
+    (237, 24, 187),
+    (59, 237, 24)
+]
+
 class Blockblast:
     def __init__(self, width, height, screen_width, screen_height):
         self.height = height
@@ -17,7 +55,7 @@ class Blockblast:
         self.screen_height = screen_height
         self.score = 0
 
-
+    
     def create_board(self, screen):
 
         for i in range(self.height):
@@ -27,7 +65,7 @@ class Blockblast:
                 row.append(Cell(screen, position, (i, j)))
             self.board.append(row)
 
-    
+     
     def draw_board(self,screen, pieces):
         
         for i in range(len(self.board)):
@@ -37,11 +75,11 @@ class Blockblast:
                 if self.board[i][j].is_colliding(pieces):
                     pygame.draw.rect(screen, (233, 226, 13), cellRect)
                 elif self.board[i][j].block == 1:
-                    pygame.draw.rect(screen, (255, 0, 0), (self.screen_width/2 - 198 + j * 60, self.screen_height/2 - 248 + i * 60, 60, 60))
+                    pygame.draw.rect(screen, self.board[i][j].color, (self.screen_width/2 - 198 + j * 60, self.screen_height/2 - 248 + i * 60, 60, 60))
                 else:
-                    pygame.draw.rect(screen, (28, 157, 195), cellRect)
+                    pygame.draw.rect(screen, self.board[i][j].color, cellRect)
 
-
+    
     def update_score(self, piece):
         self.score += piece.blocks
 
@@ -56,6 +94,7 @@ class Blockblast:
                 self.score += len(row)
                 for j, cell in enumerate(row):
                     cell.block = 0
+                    cell.color = (28, 157, 195)
 
         for i, row in enumerate(board_t):
             blocks = 0
@@ -67,6 +106,7 @@ class Blockblast:
                 self.score += len(row)
                 for j, cell in enumerate(row):
                     self.board[j][i].block = 0
+                    self.board[j][i].color = (28, 157, 195)
 
 
     def lost(self, pieces):
@@ -91,6 +131,7 @@ class Cell:
         self.colliding = False
         self.block = 0
         self.coord = coord
+        self.color = (28, 157, 195) 
 
     def is_colliding(self, pieces):
         for i, piece in enumerate(pieces):
@@ -116,6 +157,7 @@ class Piece:
         self.is_movable = True
         self.cells_colliding = []
         self.blocks = 0
+        self.color = colors[randint(0, len(colors) - 1)]
 
         if self.shape is None:
             self.shape = shapes[randint(0, len(shapes) - 1)]
@@ -131,7 +173,7 @@ class Piece:
             for j in range(len(self.shape[i])):
                 if self.shape[i][j] == 1:
                     block = pygame.Rect(self.x + j * self.block_size, self.y + i * self.block_size,self.block_size, self.block_size)
-                    pygame.draw.rect(self.screen, (255, 0, 0), block)
+                    pygame.draw.rect(self.screen, self.color, block)
 
 
     def get_rects(self):
@@ -167,6 +209,7 @@ class Piece:
             for j, cell in enumerate(row):
                 if cell.is_colliding([self]):
                     cell.block = 1
+                    cell.color = self.color
 
     
     def is_placeable(self, board):

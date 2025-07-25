@@ -44,8 +44,8 @@ while running:
 
                     if len(pieces) == 0:
                         pieces.append(Piece(screen, 40, 130))
-                        pieces.append(Piece(screen, 40, 320))
-                        pieces.append(Piece(screen, 40, 510))
+                        pieces.append(Piece(screen, 40, 330))
+                        pieces.append(Piece(screen, 40, 530))
 
                 else:
                     moving_piece.x = moving_piece.initial_x
@@ -103,8 +103,8 @@ while running:
             if button1.collidepoint(mouse):
                 playing = True
                 pieces.append(Piece(screen, 40, 130))
-                pieces.append(Piece(screen, 40, 320))
-                pieces.append(Piece(screen, 40, 510))
+                pieces.append(Piece(screen, 40, 330))
+                pieces.append(Piece(screen, 40, 530))
             elif button2.collidepoint(mouse):
                 running = False
         
@@ -130,7 +130,7 @@ while running:
             if menuButton.collidepoint(mouse):
                 playing = False
 
-        board = pygame.Rect(width/2 - 200, height/2 - 250, 542, 542)
+        board = pygame.Rect(width/2 - 205, height/2 - 255, 560, 560)
         pygame.draw.rect(screen, (11, 44, 149), board, border_radius=5)
 
         scoreText = button_text.render('Score:', True, white)
@@ -162,7 +162,7 @@ while running:
             screen.blit(new_game, new_gameRect)
            
             go_to_menu = button_text.render("Go to menu", True, black)
-            go_to_menuRect = new_game.get_rect()
+            go_to_menuRect = go_to_menu.get_rect()
             go_to_menuRect.center = (width/2 + 100, height/2 + 100)
             pygame.draw.rect(screen, white, go_to_menuRect)
             screen.blit(go_to_menu, go_to_menuRect)
@@ -175,8 +175,8 @@ while running:
                     lost = False
                     pieces = []
                     pieces.append(Piece(screen, 40, 130))
-                    pieces.append(Piece(screen, 40, 320))
-                    pieces.append(Piece(screen, 40, 510))
+                    pieces.append(Piece(screen, 40, 330))
+                    pieces.append(Piece(screen, 40, 530))
 
                 if go_to_menuRect.collidepoint(mouse):
                     game = BB(9, 9, width, height)
