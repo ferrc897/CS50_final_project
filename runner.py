@@ -18,10 +18,12 @@ grey = (100, 100, 100)
 
 title_text = pygame.font.Font(None, 100)
 button_text = pygame.font.Font('assets/fonts/arial.ttf', 20)
+message_text = pygame.font.Font(None, 50)
 
 pieces = []
 moving_piece = None
 playing = False
+lost = False
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -39,6 +41,12 @@ while running:
                 if moving_piece.is_placeable(game.board):
                     moving_piece.place(game.board)
                     pieces.remove(moving_piece)
+
+                    if len(pieces) == 0:
+                        pieces.append(Piece(screen, 40, 130))
+                        pieces.append(Piece(screen, 40, 320))
+                        pieces.append(Piece(screen, 40, 510))
+
                 else:
                     moving_piece.x = moving_piece.initial_x
                     moving_piece.y = moving_piece.initial_y
@@ -47,6 +55,10 @@ while running:
 
                 moving_piece.dragging = False
                 moving_piece = None
+                
+                if game.lost(pieces):
+                    lost = True
+                
 
         elif event.type == pygame.MOUSEMOTION and moving_piece:
             moving_piece.update_position(event.pos)
@@ -90,6 +102,9 @@ while running:
         if click == 1:
             if button1.collidepoint(mouse):
                 playing = True
+                pieces.append(Piece(screen, 40, 130))
+                pieces.append(Piece(screen, 40, 320))
+                pieces.append(Piece(screen, 40, 510))
             elif button2.collidepoint(mouse):
                 running = False
         
@@ -132,10 +147,42 @@ while running:
 
         for piece in pieces:
             piece.draw()
-        
-        if len(pieces) == 0:
-            pieces.append(Piece(screen, 40, 130))
-            pieces.append(Piece(screen, 40, 320))
-            pieces.append(Piece(screen, 40, 510))
+
+           
+        if lost:
+            lost_message = message_text.render("You lost", True, white)
+            lost_messageRect = lost_message.get_rect()
+            lost_messageRect.center = (width/2, height/2)
+            screen.blit(lost_message, lost_messageRect)
+
+            new_game = button_text.render("New game", True, black)
+            new_gameRect = new_game.get_rect()
+            new_gameRect.center = (width/2 - 100, height/2 + 100)
+            pygame.draw.rect(screen, white, new_gameRect)
+            screen.blit(new_game, new_gameRect)
+           
+            go_to_menu = button_text.render("Go to menu", True, black)
+            go_to_menuRect = new_game.get_rect()
+            go_to_menuRect.center = (width/2 + 100, height/2 + 100)
+            pygame.draw.rect(screen, white, go_to_menuRect)
+            screen.blit(go_to_menu, go_to_menuRect)
+    
+
+            click, _, _ = pygame.mouse.get_pressed()
+            if click == 1:
+                if new_gameRect.collidepoint(mouse):
+                    game = BB(9, 9, width, height)
+                    lost = False
+                    pieces = []
+                    pieces.append(Piece(screen, 40, 130))
+                    pieces.append(Piece(screen, 40, 320))
+                    pieces.append(Piece(screen, 40, 510))
+
+                if go_to_menuRect.collidepoint(mouse):
+                    game = BB(9, 9, width, height)
+                    lost = False
+                    playing = False
+                    pieces = []
+
 
         pygame.display.flip()

@@ -3,7 +3,7 @@ import pygame
 
 
 shapes = [
-    [[1, 1], [1, 1]],
+    [[1, 1, 0], [1, 1, 0]],
     [[1, 0, 0], [1, 1, 1]],
     [[0, 1, 0], [1, 1, 1]],
     [[1, 1, 1], [1, 1, 1], [1, 1, 1]]
@@ -19,6 +19,7 @@ class Blockblast:
 
 
     def create_board(self, screen):
+
         for i in range(self.height):
             row = []
             for j in range(self.width):
@@ -42,6 +43,7 @@ class Blockblast:
 
 
     def update_score(self, piece):
+        self.score += piece.blocks
 
         board_t = self.board.copy()
         for i, row in enumerate(self.board):
@@ -49,6 +51,7 @@ class Blockblast:
             for j, cell in enumerate(row):
                 if cell.block == 1:
                     blocks += 1
+
             if blocks == len(row):
                 self.score += len(row)
                 for j, cell in enumerate(row):
@@ -59,10 +62,22 @@ class Blockblast:
             for j, cell in enumerate(row):
                 if board_t[j][i].block == 1:
                     blocks += 1
+
             if blocks == 9:
                 self.score += len(row)
                 for j, cell in enumerate(row):
                     self.board[j][i].block = 0
+
+
+    def lost(self, pieces):
+        if len(pieces) > 0:
+            for piece in pieces:
+                for i, row in enumerate(self.board):
+                    for j, cell in enumerate(row):
+                        copy = Piece(screen=None,x=self.screen_width/2 - 200 + j * 60,y=self.screen_height/2 - 250 + i * 60, shape=piece.shape)
+                        if copy.is_placeable(self.board):
+                            return False                       
+            return True
 
             
                 
@@ -82,13 +97,14 @@ class Cell:
             for j, block in enumerate(piece.get_rects()):
                 if self.position.colliderect(block) and self.block == 0:
                     piece.cells_colliding.append(self.coord)
+                    
                     return True
                 
 
 class Piece:
-    def __init__(self, screen, x=0, y=0):
+    def __init__(self, screen, x=0, y=0, shape=None):
         self.screen = screen
-        self.shape = shapes[randint(0, len(shapes) - 1)]
+        self.shape = shape
         self.initial_x = x
         self.initial_y = y
         self.x = x
@@ -100,6 +116,9 @@ class Piece:
         self.is_movable = True
         self.cells_colliding = []
         self.blocks = 0
+
+        if self.shape is None:
+            self.shape = shapes[randint(0, len(shapes) - 1)]
 
         for i, row in enumerate(self.shape):
             for j, block in enumerate(row):
@@ -113,6 +132,7 @@ class Piece:
                 if self.shape[i][j] == 1:
                     block = pygame.Rect(self.x + j * self.block_size, self.y + i * self.block_size,self.block_size, self.block_size)
                     pygame.draw.rect(self.screen, (255, 0, 0), block)
+
 
     def get_rects(self):
         rects = []
