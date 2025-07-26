@@ -41,6 +41,7 @@ while running:
                 if moving_piece.is_placeable(game.board):
                     moving_piece.place(game.board)
                     pieces.remove(moving_piece)
+                    game.update_score(moving_piece)
 
                     if len(pieces) == 0:
                         pieces.append(Piece(screen, 40, 130))
@@ -51,7 +52,7 @@ while running:
                     moving_piece.x = moving_piece.initial_x
                     moving_piece.y = moving_piece.initial_y
 
-                game.update_score(moving_piece)
+               
 
                 moving_piece.dragging = False
                 moving_piece = None
@@ -113,7 +114,6 @@ while running:
     else:
 
         screen.fill(blue)
-        mouse = pygame.mouse.get_pos()
         menuButton = pygame.Rect(40, 40, 100, 60)
         if menuButton.collidepoint(mouse):
             pygame.draw.rect(screen, grey, menuButton)
@@ -129,6 +129,7 @@ while running:
         if click == 1:
             if menuButton.collidepoint(mouse):
                 playing = False
+                pieces = []
 
         board = pygame.Rect(width/2 - 205, height/2 - 255, 560, 560)
         pygame.draw.rect(screen, (11, 44, 149), board, border_radius=5)
@@ -150,6 +151,9 @@ while running:
 
            
         if lost:
+            for piece in pieces:
+                piece.is_movable = False
+            
             lost_message = message_text.render("You lost", True, white)
             lost_messageRect = lost_message.get_rect()
             lost_messageRect.center = (width/2, height/2)
